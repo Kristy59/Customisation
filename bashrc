@@ -47,6 +47,7 @@ fi
 
 ##Date + Heure d'execution de la commande dans le fichier bash_history
 HISTTIMEFORMAT="%h/%d - %H:%M:%S "
+##Alias Extraction archive courante
 extract () {
     if [ -f $1 ] ; then
       case $1 in

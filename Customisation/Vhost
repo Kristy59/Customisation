@@ -1,0 +1,8 @@
+<VirtualHost *:80>
+    ServerName site.domaine.com
+    DocumentRoot /home/site/www/
+    <Directory /home/site/www/>
+        Options -Indexes -FollowSymLinks MultiViews
+        Allow from All
+    </Directory>
+</VirtualHost>

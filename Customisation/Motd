@@ -1,0 +1,51 @@
+Brouillon MOTD :
+#!/bin/bash
+
+OS=`cat /etc/issue | sed -n 1p`
+PROCCOUNT=`ps -Afl | wc -l`
+PROCCOUNT=`expr $PROCCOUNT - 5`
+GROUPZ=`groups`
+KERNEL=`uname -r`
+#UPTIME=`uptime | sed 's/.*up ([^,]*), .*/1/'`
+UPTIME=`uptime | cut -d, -f1`
+MEMORY_TOTAL=`free -m | grep Mem | awk '{ print $2 }'`
+MEMORY_USED=`free -m | grep Mem | awk '{ print $3 }'`
+MEMORY_FREE=`free -m | grep Mem | awk '{ print $4 }'`
+SWAP_TOTAL=`free -m | grep Swap | awk '{ print $2 }'`
+SWAP_USED=`free -m | grep Swap | awk '{ print $3 }'`
+SWAP_FREE=`free -m | grep Swap | awk '{ print $4 }'`
+MEMORY="Total : ${MEMORY_TOTAL}MB\t| Used : ${MEMORY_USED}MB\t| Free : ${MEMORY_FREE}MB"
+SWAP="Total : ${SWAP_TOTAL}MB\t| Used : ${SWAP_USED}MB\t| Free : ${SWAP_FREE}MB"
+#MEMORY=`cat /proc/meminfo | grep MemTotal | awk {'print $2'}`
+USER=`whoami`
+SESSION_NB=`who | grep $USER | wc -l`
+SESSION_USER=`who -u | awk '{ print $7 }' | sed -e "s/.domaine.com//" | sed -e "s/(//" | sed -e "s/)//"`
+SESSION_USER=`echo $SESSION_USER | sed -e "s/\\n//"`
+SESSION="$SESSION_NB | $SESSION_USER"
+RELEASE="<%= operatingsystem %> - <%= operatingsystemrelease  %>"
+IP="<%= ipaddress  %>"
+INFO="<%= processor0 %>"
+INFO_PROC=`echo $INFO | sed -e 's/\t/ /g'`
+PROCESSOR="<%= processorcount  %> x $INFO_PROC"
+ARCHITECTURE="<%= architecture %>"
+PUPPETMASTER="<%= puppetmaster %>"
+PUPENV="<%= environment %>"
+PUPVERSION="<%= puppetversion %>"
+MAINTENANCE_MSG="<%= maintenance_msg %>"
+
+echo -e "\033[0;32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\033[0;32m+++++++++++++++++++++++++++++++: \033[0;31mSystem Data\033[0;32m :+++++++++++++++++++++++++++++++++
+\033[0;32m+     \033[0;36mHostname \033[0;35m= \033[1;32m`hostname`
+\033[0;32m+      \033[0;36mRelease \033[0;35m= \033[1;32m$OS
+\033[0;32m+ \033[0;36mArchitecture \033[0;35m= \033[1;32m$ARCHITECTURE
+\033[0;32m+      \033[0;36mAddress \033[0;35m= \033[1;32m$IP
+\033[0;32m+       \033[0;36mKernel \033[0;35m= \033[1;32m$KERNEL
+\033[0;32m+       \033[0;36mUptime \033[0;35m=\033[1;32m$UPTIME
+\033[0;32m+          \033[0;36mCPU \033[0;35m= \033[1;32m$PROCESSOR
+\033[0;32m+       \033[0;36mMemory \033[0;35m= \033[1;32m$MEMORY
+\033[0;32m+         \033[0;36mSWAP \033[0;35m= \033[1;32m$SWAP
+\033[0;32m++++++++++++++++++++++++++++++++: \033[0;31mUser Data\033[0;32m :++++++++++++++++++++++++++++++++++
+\033[0;32m+     \033[0;36mUsername \033[0;35m= \033[1;32m$USER
+\033[0;32m+     \033[0;36mSessions \033[0;35m= \033[1;32m$SESSION
+\033[0;32m+  \033[0;36mNb. Process \033[0;35m= \033[1;32m$PROCCOUNT
+\033[0;32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\033[0;00m"

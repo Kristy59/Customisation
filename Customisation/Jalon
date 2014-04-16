@@ -1,0 +1,37 @@
+#!/bin/bash
+######################
+# Parametres et initialisation
+######################
+TODAY=`date +%Y%m%d`
+NOW=`date +%H%M%S`
+VAR1=toto
+VAR2=tata
+FIC_LOG=/myreplog/mylog-$TODAY$NOW.log
+
+JALON_00() {
+	Tache 1
+}
+
+JALON_01() {
+	Tache 2
+}
+
+JALON_02() {
+	Tache 3
+}
+
+####################
+# Boucle principale
+####################
+CPT_JAL=${S_NUMJALON:-00}
+# On boucle tant qu'une fonction JALON_XX est definie
+# si whence retourne non "" (chaine non vide) c'est que la fonction (le jalon) existe
+while [ -n "`whence JALON_$CPT_JAL`" ]; do
+        echo "##### JALON n°$CPT_JAL #####"
+        [ `whence $UXEXE/uxset` != "" ] &&  step $CPT_JAL
+        JALON_$CPT_JAL
+        let CPT_JAL=$CPT_JAL+1
+        CPT_JAL=`printf "%02i" $CPT_JAL`
+done
+
+exit 0

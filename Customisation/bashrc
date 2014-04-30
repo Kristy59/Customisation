@@ -22,6 +22,7 @@
  alias compress='tar -cvzf'
  alias uncompress='tar -zxvf'
  alias vi='vim'
+ alias randpasswd='</dev/urandom tr -dc '12345!@#$%&*()_A-Z-a-z-0-9'| fold -w10 | head -1'
 # alias mountftp='curlftpfs ftp://FTP /REPERTOIRELOCALE -o user=USER:PASSWORD'
 # Some more alias to avoid making mistakes:
 # alias rm='rm -i'

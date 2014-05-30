@@ -1,0 +1,228 @@
+#!/bin/bash
+#
+##Ecrit Par JBE
+#
+### BEGIN INIT INFO
+# Provides:          iptables
+# Required-Start:    $syslog $network
+# Required-Stop:     $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start firewall daemon at boot time
+# Description:       Custom Firewall scrip.
+### END INIT INFO
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+############################
+# Start the Firewall rules #
+############################
+fw_start () {
+#Autoriser les réponses aux connexions ayant pour source le serveur (entrée/sortie)
+    iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+    iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+##Whitelist
+#    iptables -t filter -A INPUT -s XXX.XXX.XXX.XXX -j ACCEPT
+#    iptables -t filter -A OUTPUT -d XXX.XXX.XXX.XXX -j ACCEPT
+##ICMP
+#Autoriser le ping, possible filtre avec IP
+    iptables -t filter -A INPUT -p icmp -j ACCEPT
+    iptables -t filter -A OUTPUT -p icmp -j ACCEPT
+#Autoriser le loopback
+    iptables -t filter -A INPUT -i lo -j ACCEPT
+    iptables -t filter -A OUTPUT -o lo -j ACCEPT
+##Services SSH
+#Tunnel SSH
+    iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 22 -j ACCEPT
+#FTP over SSH
+    iptables -t filter -A INPUT -p tcp --dport 115 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 115 -j ACCEPT
+##Autoriser le DNS
+    iptables -t filter -A INPUT -p udp --dport 53 -j ACCEPT
+    iptables -t filter -A OUTPUT -p udp --dport 53 -j ACCEPT
+#Service NTP
+    iptables -t filter -A INPUT -p udp --dport 123 -j ACCEPT
+    iptables -t filter -A OUTPUT -p udp --dport 123 -j ACCEPT
+##Service FTP
+#Port notre ftp pure-ftpd : 8122
+#Plus port FTPES client windows (filezilla)
+#    iptables -t filter -A INPUT -p tcp --dport 8122 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 8122 -j ACCEPT
+#Special FTPES (explicite TLS) (Port Passif)
+#    iptables -t filter -A INPUT -p tcp -m multiport --dport 40100:40200 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp -m multiport --dport 40100:40200 -j ACCEPT
+#Port connexion au ftp classique : 20 et 21
+    iptables -t filter -A INPUT -p tcp -m multiport --dport 20,21 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp -m multiport --dport 20,21 -j ACCEPT
+##Service MAIL
+#SMTP : 25
+    iptables -t filter -A INPUT -p tcp --dport 25 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 25 -j ACCEPT
+##SMTP : Autres ports 465 et 587 (en cas de blocage FAI)
+    iptables -t filter -A INPUT -p tcp --dport 465 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 465 -j ACCEPT
+    iptables -t filter -A INPUT -p tcp --dport 587 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 587 -j ACCEPT
+#POP3 : 110
+    iptables -t filter -A INPUT -p tcp --dport 110 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 110 -j ACCEPT
+#IMAP : 143
+    iptables -t filter -A INPUT -p tcp --dport 143 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 143 -j ACCEPT
+#POP3S : 995
+    iptables -t filter -A INPUT -p tcp --dport 995 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 995 -j ACCEPT
+#IMAPS : 993
+    iptables -t filter -A INPUT -p tcp --dport 993 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 993 -j ACCEPT
+#Spamassassin : 783
+#    iptables -t filter -A INPUT -p tcp --dport 783 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 783 -j ACCEPT
+#    iptables -t filter -A INPUT -p udp --dport 783 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p udp --dport 783 -j ACCEPT
+#Amavis
+#    iptables -t filter -A INPUT -p tcp -m multiport --dport 10024,10025 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp -m multiport --dport 10024,10025 -j ACCEPT
+#Mailq : 174
+    iptables -t filter -A INPUT -p tcp --dport 174 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 174 -j ACCEPT
+##Service BDD
+#Mysql : 3306
+#    iptables -t filter -A INPUT -p tcp --dport 3306 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 3306 -j ACCEPT
+#MongoDB
+#    iptables -t filter -A INPUT -p tcp --dport 27017 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 27017 -j ACCEPT
+#    iptables -t filter -A INPUT -p udp --dport 27017 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p udp --dport 27017 -j ACCEPT
+#MongoDB WEB
+#    iptables -t filter -A INPUT -p tcp --dport 28017 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 28017 -j ACCEPT
+#    iptables -t filter -A INPUT -p udp --dport 28017 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p udp --dport 28017 -j ACCEPT
+##Services WEB
+#HTTP : 80
+    iptables -t filter -A INPUT -p tcp --dport 80 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 80 -j ACCEPT
+#HTTPS : 443
+    iptables -t filter -A INPUT -p tcp --dport 443 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 443 -j ACCEPT
+    iptables -t filter -A INPUT -p tcp --dport 8443 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 8443 -j ACCEPT
+#Reverse-Proxy : 8080
+#    iptables -t filter -A INPUT -p tcp --dport 8080 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 8080 -j ACCEPT
+#    iptables -t filter -A INPUT -p udp --dport 8080 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p udp --dport 8080 -j ACCEPT
+#Reverse-Proxy HTTPS : 8081
+#    iptables -t filter -A INPUT -p tcp --dport 8081 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 8081 -j ACCEPT
+#    iptables -t filter -A INPUT -p udp --dport 8081 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p udp --dport 8081 -j ACCEPT
+#Plage pour Test DEV :
+#    iptables -t filter -A INPUT -p tcp --dport 1600:1700 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p tcp --dport 1600:1700 -j ACCEPT
+#    iptables -t filter -A INPUT -p udp --dport 1600:1700 -j ACCEPT
+#    iptables -t filter -A OUTPUT -p udp --dport 1600:1700 -j ACCEPT
+##Autres Services Commun :
+#Monitoring
+#	iptables -t filter -A INPUT -p icmp --source XX.XX.XX.XX -j ACCEPT
+#    iptables -t filter -A INPUT -p icmp --source XX.XX.XX.XX -j ACCEPT
+#Telnet
+    iptables -t filter -A INPUT -p tcp --dport 23 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 23 -j ACCEPT
+#SNMP
+    iptables -t filter -A INPUT -p udp --dport 161 -j ACCEPT
+    iptables -t filter -A OUTPUT -p udp --dport 161 -j ACCEPT
+#RSYNC
+    iptables -t filter -A INPUT -p tcp --dport 873 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 873 -j ACCEPT
+#Puppet
+    iptables -t filter -A INPUT -p tcp --dport 8140 -j ACCEPT
+    iptables -t filter -A OUTPUT -p tcp --dport 8140 -j ACCEPT
+#CIFS
+#   iptables -t filter -A INPUT -p tcp --dport 445 -j ACCEPT
+#   iptables -t filter -A OUTPUT -p tcp --dport 445 -j ACCEPT
+#BOOTP
+    iptables -t filter -A INPUT -p udp -m multiport --dport 68,67 -j ACCEPT
+    iptables -t filter -A INPUT -p udp -m multiport --dport 68,67 -j ACCEPT
+##Rejet du reste avec tracelog :
+    iptables -t filter -A INPUT -j LOG
+    iptables -t filter -A INPUT -j DROP
+}
+
+#################################
+# Stop/clear the Firewall rules #
+#################################
+fw_stop () {
+/sbin/iptables -F
+/sbin/iptables -t nat -F
+/sbin/iptables -t mangle -F
+/sbin/iptables -P INPUT ACCEPT
+/sbin/iptables -P FORWARD ACCEPT
+/sbin/iptables -P OUTPUT ACCEPT
+}
+
+###########################
+# Test the Firewall rules #
+###########################
+fw_test () {
+fw_save
+fw_load
+sleep 30 && echo "Restore previous Firewall rules..." && fw_stop &
+fw_start
+fw_restore
+}
+
+fw_load () {
+/sbin/iptables-restore < /etc/iptables.test
+}
+
+###########################
+# Save the Firewall rules #
+###########################
+fw_save () {
+/sbin/iptables-save > /etc/iptables.backup
+}
+
+##############################
+# Restore the Firewall rules #
+##############################
+fw_restore () {
+if [ -e /etc/iptables.backup ]; then
+ /sbin/iptables-restore < /etc/iptables.backup
+fi
+}
+
+##############
+##   MAIN   ##
+##############
+case "$1" in
+    start|restart)
+        echo "Starting firewall.."
+        fw_stop
+        fw_start
+        echo "done."
+    ;;
+stop|clear)
+    echo "Stopping & Clearing firewall.."
+    fw_stop
+    echo "done."
+ ;;
+test)
+ echo "Test Firewall rules from /etc/iptables.test..."
+ fw_test
+ echo "Previous configuration will be restore in 30 seconds"
+ ;;
+save)
+ echo "Save Firewall rules to /etc/iptables.backup"
+ fw_save
+ echo "done."
+ ;;
+*)
+ echo "Usage: $0 {start|stop|restart|clear|test|save}"
+ echo "Stop will clear ALL Rules !!!"
+ exit 1
+ ;;
+esac
+exit 0
